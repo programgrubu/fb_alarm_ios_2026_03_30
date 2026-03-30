@@ -14,20 +14,17 @@ workflows:
         BUNDLE_ID: com.football.alarm 
     scripts:
       - name: Initialize Keychain
+        script: keychain initialize
+      - name: Fetch Signing Files
         script: |
-          # Keychain'i bir şifre ile başlatmak sertifika hatalarını çözer
-          keychain initialize
-      - name: Fetch and Install Signing Files
-        script: |
-          # --install parametresi Private Key eşleşmesi için kritiktir
-          app-store-connect fetch-signing-files $BUNDLE_ID --create --install
+          # Sadece BUNDLE_ID ile en sade komutu kullanıyoruz
+          app-store-connect fetch-signing-files $BUNDLE_ID --create
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
         script: flutter pub get
       - name: Flutter build ipa
         script: |
-          # IPA paketini oluşturur
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
