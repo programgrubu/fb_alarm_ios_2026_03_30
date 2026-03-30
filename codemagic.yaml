@@ -15,16 +15,11 @@ workflows:
     scripts:
       - name: Initialize Keychain
         script: keychain initialize
-      - name: Fetch Signing Files
-        script: |
-          # Sadece BUNDLE_ID ile en sade komutu kullanıyoruz
-          app-store-connect fetch-signing-files $BUNDLE_ID --create
-      - name: Add Certificates to Keychain
-        script: keychain add-certificates
       - name: Flutter pub get
         script: flutter pub get
       - name: Flutter build ipa
         script: |
+          # Bu komut artık sertifikaları publishing adımından otomatik alacak
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
