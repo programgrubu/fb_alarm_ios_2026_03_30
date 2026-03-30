@@ -15,13 +15,18 @@ workflows:
     scripts:
       - name: Initialize Keychain
         script: keychain initialize
+      - name: Fetch Signing Files
+        script: |
+          # Sertifikaları çekiyoruz ama --install yerine sisteme tanıtıyoruz
+          app-store-connect fetch-signing-files $BUNDLE_ID --create
+      - name: Add Certificates to Keychain
+        script: keychain add-certificates
       - name: Flutter pub get
         script: flutter pub get
       - name: Flutter build ipa
         script: |
-          # Bu komut artık sertifikaları publishing adımından otomatik alacak
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
+          # Hata veren plist yolunu kaldırıyoruz ve codesign'ı Flutter seviyesinde atlıyoruz
+          flutter build ipa --release --no-codesign
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
