@@ -1,0 +1,68 @@
+name: fb_alarm
+description: "A new Flutter project for Football Alarms."
+publish_to: 'none'
+version: 1.0.1+13
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP istekleri için veri çekme servisleri
+  http: ^1.2.0
+
+  # Firebase servisleri - Sürümler güncel ve stabil tutuldu
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.20.0
+  cloud_firestore: ^4.17.5
+
+  # Google Sign-In
+  google_sign_in: ^6.3.0
+
+  # Yerel Veri Saklama ve Kullanıcı Tercihleri
+  shared_preferences: ^2.2.3
+
+  # --- BİLDİRİM VE ALARM SİSTEMİ İÇİN GÜNCEL PAKETLER ---
+  flutter_local_notifications: ^17.2.4
+  timezone: ^0.9.4
+  flutter_timezone: ^5.0.0
+
+  # --- ARKA PLAN GÖREVLERİ VE SKOR TAKİBİ İÇİN EKLENEN PAKET ---
+  workmanager: ^0.9.0+3
+
+  # --- REKLAM VE ÖDEME SİSTEMLERİ İÇİN EKLENEN PAKETLER ---
+  google_mobile_ads: ^5.1.0
+  in_app_purchase: ^3.2.0
+
+  # API Anahtarlarını gizlemek için eklenen paket
+  flutter_dotenv: ^5.1.0
+
+  # İkonlar ve Tasarım Bileşenleri
+  cupertino_icons: ^1.0.6
+  sign_in_with_apple: ^7.0.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  # İkon oluşturucu paket eklendi
+  flutter_launcher_icons: ^0.13.1
+
+# Uygulama ikonu ayarları
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/splash/app_icon.jpg"
+  min_sdk_android: 21
+
+flutter:
+  uses-material-design: true
+
+  # Asset tanımlamaları (Dosya yapısı korunmuştur)
+  assets:
+    - assets/splash/
+    - assets/splash/app_icon.jpg
+    # .env dosyasının uygulama tarafından okunabilmesi için buraya eklenmesi zorunludur
+    - .env

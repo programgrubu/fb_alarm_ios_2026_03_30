@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1075040561563",
+    "project_id": "footballalarm2026-3464c",
+    "storage_bucket": "footballalarm2026-3464c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1075040561563:android:913e64bf320022c692d93e",
+        "android_client_info": {
+          "package_name": "com.programgrubu.football_alarm1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1075040561563-06rrv0fj1tvkpsti7g49qd6hh2m0s7fc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.programgrubu.football_alarm1",
+            "certificate_hash": "30da02c07430694a2126037276a6bbfc406485c2"
+          }
+        },
+        {
+          "client_id": "1075040561563-ltqarjuajr1am6n22u456jmlmqtoltt6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.programgrubu.football_alarm1",
+            "certificate_hash": "9026320e6d9b77188812909839c8ce7ff1e00bdd"
+          }
+        },
+        {
+          "client_id": "1075040561563-jo268vd4jd73trl05h3q1hjq8ramjt5e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXXrttxouDcLfTUWoMnjLCg3pBPoXj7Rk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1075040561563-jo268vd4jd73trl05h3q1hjq8ramjt5e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
