@@ -11,13 +11,14 @@ workflows:
       cocoapods: default
       vars:
         APP_STORE_APPLE_ID: 6742335191
-        BUNDLE_ID: "com.football.alarm" # Apple'daki Bundle ID'ni buraya tırnak içinde yaz
+        BUNDLE_ID: com.football.alarm # Buraya tırnaksız şekilde Bundle ID'ni yaz
     scripts:
       - name: Initialize Keychain
         script: keychain initialize
       - name: Fetch Signing Files
         script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --project-type ios --create
+          # Hatalı olan --project-type ios kısmı kaldırıldı
+          app-store-connect fetch-signing-files $BUNDLE_ID --create
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
@@ -31,4 +32,4 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true # TestFlight'a otomatik gönderir
+        submit_to_testflight: true
