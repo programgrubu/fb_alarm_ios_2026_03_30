@@ -11,20 +11,23 @@ workflows:
       cocoapods: default
       vars:
         APP_STORE_APPLE_ID: 6742335191
-        BUNDLE_ID: com.football.alarm # Buraya tırnaksız şekilde Bundle ID'ni yaz
+        BUNDLE_ID: com.football.alarm 
     scripts:
       - name: Initialize Keychain
-        script: keychain initialize
-      - name: Fetch Signing Files
         script: |
-          # Hatalı olan --project-type ios kısmı kaldırıldı
-          app-store-connect fetch-signing-files $BUNDLE_ID --create
+          # Keychain'i bir şifre ile başlatmak sertifika hatalarını çözer
+          keychain initialize
+      - name: Fetch and Install Signing Files
+        script: |
+          # --install parametresi Private Key eşleşmesi için kritiktir
+          app-store-connect fetch-signing-files $BUNDLE_ID --create --install
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
         script: flutter pub get
       - name: Flutter build ipa
         script: |
+          # IPA paketini oluşturur
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
