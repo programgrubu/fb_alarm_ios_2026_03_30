@@ -4,19 +4,26 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m1
     integrations:
-      app_store_connect: Football Alarm API # Codemagic Integrations'taki anahtar adın
+      app_store_connect: Football Alarm API 
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
       vars:
-        APP_STORE_APPLE_ID: 6742335191 # Apple Store Connect'teki App ID (Gerekirse güncelle)
+        APP_STORE_APPLE_ID: 6742335191
+        BUNDLE_ID: "com.football.alarm" # Apple'daki Bundle ID'ni buraya tırnak içinde yaz
     scripts:
+      - name: Initialize Keychain
+        script: keychain initialize
+      - name: Fetch Signing Files
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --project-type ios --create
+      - name: Add Certificates to Keychain
+        script: keychain add-certificates
       - name: Flutter pub get
         script: flutter pub get
       - name: Flutter build ipa
         script: |
-          # Bu komut uygulamayı imzalar ve paketler
           flutter build ipa --release \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
@@ -24,5 +31,4 @@ workflows:
     publishing:
       app_store_connect:
         auth: integration
-        submit_to_testflight: true # Otomatik TestFlight'a gönderir
-        beta_build_description: "Football Alarm iOS Versiyonu"
+        submit_to_testflight: true # TestFlight'a otomatik gönderir
