@@ -1,30 +1,15 @@
-# Football Alarm - Codemagic Build Configuration
-workflows:
-  ios-workflow:
-    name: iOS TestFlight Build
-    max_build_duration: 60
-    instance_type: mac_mini_m1
-    integrations:
-      app_store_connect: Football Alarm API 
-    environment:
-      flutter: stable
-      xcode: latest
-      cocoapods: default
-      vars:
-        APP_STORE_APPLE_ID: 6742335191
-        BUNDLE_ID: com.football.alarm 
-    scripts:
+scripts:
       - name: Clean and Fix gitignore Encoding
         script: |
           rm -f .gitignore
           printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
-          echo ".gitignore dosyası başarıyla temizlendi."
+          echo ".gitignore temizlendi."
       - name: Initialize Keychain
         script: keychain initialize
       - name: Fetch Signing Files
         script: |
-          # ÖNEMLİ GÜNCELLEME: --create ve --generate-content-p8 ile anahtar hatasını aşıyoruz
-          app-store-connect fetch-signing-files $BUNDLE_ID --create --generate-content-p8
+          # Sadece en temel parametreleri kullanıyoruz
+          app-store-connect fetch-signing-files $BUNDLE_ID --create
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
@@ -34,11 +19,5 @@ workflows:
           find . -name "Podfile" -execdir pod install \;
       - name: Flutter build ipa
         script: |
-          # Kod imzalama için build komutunu güncelledik
-          flutter build ipa --release --export-options-plist=/Users/builder/export_options.plist
-    artifacts:
-      - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
+          # Export options kısmını sistemin otomatik yönetmesine bırakıyoruz
+          flutter build ipa --release --no-codesign
