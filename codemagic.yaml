@@ -16,16 +16,15 @@ workflows:
     scripts:
       - name: Clean and Fix gitignore Encoding
         script: |
-          # UTF-8 hatasını (image_301bfd.png) çözmek için bozuk dosyayı siliyoruz
+          # UTF-8 encoding hatasını çözmek için (image_301bfd.png)
           rm -f .gitignore
           printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
-          echo ".gitignore başarıyla temizlendi."
       - name: Initialize Keychain
         script: keychain initialize
       - name: Fetch Signing Files
         script: |
-          # Private key hatasını (image_310bfe.png) çözmek için --create kullanıyoruz
-          app-store-connect fetch-signing-files $BUNDLE_ID --create
+          # Apple tarafında sertifikaları sildiyseniz (Revoke), bu komut yeni anahtar oluşturacaktır
+          app-store-connect fetch-signing-files $BUNDLE_ID --create --certificate-key
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
@@ -35,7 +34,7 @@ workflows:
           find . -name "Podfile" -execdir pod install \;
       - name: Flutter build ipa
         script: |
-          # Build işlemini başlatıyoruz
+          # Temiz bir build başlatıyoruz
           flutter build ipa --release --no-codesign
     artifacts:
       - build/ios/ipa/*.ipa
