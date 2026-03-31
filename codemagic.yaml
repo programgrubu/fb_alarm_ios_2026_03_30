@@ -3,7 +3,7 @@ workflows:
   ios-workflow:
     name: iOS TestFlight Build
     max_build_duration: 60
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     integrations:
       app_store_connect: Football Alarm API 
     environment:
@@ -12,30 +12,30 @@ workflows:
       cocoapods: default
       vars:
         APP_STORE_APPLE_ID: 6742335191
-        BUNDLE_ID: com.football.alarm 
+        BUNDLE_ID: com.football.alarm
+        APPLE_TEAM_ID: 3B9P62N8T2
     scripts:
       - name: Clean and Fix gitignore Encoding
         script: |
-          # UTF-8 encoding hatasını çözmek için (image_301bfd.png)
           rm -f .gitignore
           printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
       - name: Initialize Keychain
         script: keychain initialize
       - name: Fetch Signing Files
         script: |
-          # Apple tarafında sertifikaları sildiyseniz (Revoke), bu komut yeni anahtar oluşturacaktır
-          app-store-connect fetch-signing-files $BUNDLE_ID --create --certificate-key
+          # DÜZELTME: Hatalı parametre silindi.
+          app-store-connect fetch-signing-files $BUNDLE_ID --create --platform IOS --type IOS_APP_STORE
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
         script: flutter pub get
       - name: Pod Install
         script: |
-          find . -name "Podfile" -execdir pod install \;
+          cd ios && pod install
       - name: Flutter build ipa
         script: |
-          # Temiz bir build başlatıyoruz
-          flutter build ipa --release --no-codesign
+          # DÜZELTME: --no-codesign kaldırıldı, TestFlight için imzalama eklendi.
+          flutter build ipa --release --export-method app-store --build-number $(($BUILD_NUMBER + 100))
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
