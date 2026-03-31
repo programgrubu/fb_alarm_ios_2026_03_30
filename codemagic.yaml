@@ -1,3 +1,4 @@
+# Football Alarm - Codemagic Build Configuration
 workflows:
   ios-workflow:
     name: iOS TestFlight Build
@@ -13,14 +14,30 @@ workflows:
         APP_STORE_APPLE_ID: 6742335191
         BUNDLE_ID: com.football.alarm 
     scripts:
+      - name: Clean and Fix gitignore Encoding
+        script: |
+          # Hatalı karakter içeren dosyayı tamamen silip temiz UTF-8 oluşturuyoruz
+          rm -f .gitignore
+          printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
+          echo ".gitignore dosyası başarıyla temizlendi ve UTF-8 olarak oluşturuldu."
       - name: Initialize Keychain
         script: keychain initialize
+      - name: Fetch Signing Files
+        script: |
+          # Apple sertifikalarını otomatik çeker
+          app-store-connect fetch-signing-files $BUNDLE_ID --create
+      - name: Add Certificates to Keychain
+        script: keychain add-certificates
       - name: Flutter pub get
         script: flutter pub get
+      - name: Pod Install
+        script: |
+          # iOS bağımlılıkları için Pod kurulumu
+          find . -name "Podfile" -execdir pod install \;
       - name: Flutter build ipa
         script: |
-          # Codesign'ı atlıyoruz, çünkü imzalama işlemini 'publishing' adımı yapacak
-          flutter build ipa --release --no-codesign
+          # TestFlight için IPA oluşturma
+          flutter build ipa --release --bundle-sideloading --no-codesign
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
