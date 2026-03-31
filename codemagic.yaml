@@ -1,0 +1,44 @@
+# Football Alarm - Codemagic Build Configuration
+workflows:
+  ios-workflow:
+    name: iOS TestFlight Build
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: Football Alarm API 
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      vars:
+        APP_STORE_APPLE_ID: 6742335191
+        BUNDLE_ID: com.football.alarm
+        APPLE_TEAM_ID: 3B9P62N8T2
+    scripts:
+      - name: Clean and Fix gitignore Encoding
+        script: |
+          rm -f .gitignore
+          printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
+      - name: Initialize Keychain
+        script: keychain initialize
+      - name: Fetch Signing Files
+        script: |
+          # DÜZELTME: Hatalı parametre silindi.
+          app-store-connect fetch-signing-files $BUNDLE_ID --create --platform IOS --type IOS_APP_STORE
+      - name: Add Certificates to Keychain
+        script: keychain add-certificates
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Pod Install
+        script: |
+          cd ios && pod install
+      - name: Flutter build ipa
+        script: |
+          # DÜZELTME: --no-codesign kaldırıldı, TestFlight için imzalama eklendi.
+          flutter build ipa --release --export-method app-store --build-number $(($BUILD_NUMBER + 100))
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
