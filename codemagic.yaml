@@ -5,13 +5,13 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
-      app_store_connect: Football Alarm API
+      app_store_connect: Football Alarm API # Paneldeki API anahtarı isminle aynı olmalı
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
       groups:
-        - ios_signing # CERTIFICATE_PASSWORD burada
+        - ios_signing # CERTIFICATE_PASSWORD değişkeninin olduğu grup
       vars:
         APP_STORE_APPLE_ID: 6742335191
         BUNDLE_ID: "com.football.alarm"
@@ -21,25 +21,36 @@ workflows:
         script: |
           rm -f .gitignore
           printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
+      
       - name: Initialize Keychain
         script: keychain initialize
-      
-      # HATA VEREN FETCH ADIMI TAMAMEN KALDIRILDI.
-      # ARTIK PANELDEKİ MANUEL SERTİFİKAYI KULLANACAK.
-
+        
+      - name: Fetch Signing Files from Apple (OTOMATİK ADIM)
+        script: |
+          # Bu komut Apple Developer hesabına gider, sertifikayı bulur ve indirir.
+          # Eğer sertifika yoksa, senin adına oluşturur.
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          
       - name: Add Certificates to Keychain
         script: keychain add-certificates
+        
       - name: Flutter pub get
         script: flutter pub get
+        
       - name: Pod Install
         script: |
           cd ios && pod install
+          
       - name: Flutter build ipa
         script: |
-          # TestFlight için build numarasını artırarak paketle
-          flutter build ipa --release --export-method app-store --build-number $(($BUILD_NUMBER + 100))
+          # Build numarasını her seferinde 1 artırarak TestFlight'a hazır hale getirir
+          flutter build ipa --release \
+            --export-method app-store \
+            --build-number $(($BUILD_NUMBER + 100))
+            
     artifacts:
       - build/ios/ipa/*.ipa
+      
     publishing:
       app_store_connect:
         auth: integration
