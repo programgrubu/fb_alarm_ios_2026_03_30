@@ -12,8 +12,8 @@ workflows:
       cocoapods: default
       vars:
         APP_STORE_APPLE_ID: 6742335191
-        BUNDLE_ID: com.football.alarm
-        APPLE_TEAM_ID: 3B9P62N8T2
+        BUNDLE_ID: "com.football.alarm"
+        APPLE_TEAM_ID: "3B9P62N8T2"
     scripts:
       - name: Clean and Fix gitignore Encoding
         script: |
@@ -23,8 +23,8 @@ workflows:
         script: keychain initialize
       - name: Fetch Signing Files
         script: |
-          # DÜZELTME: Hatalı parametre silindi.
-          app-store-connect fetch-signing-files $BUNDLE_ID --create --platform IOS --type IOS_APP_STORE
+          # --create parametresi Private Key yoksa yenisini oluşturmasını sağlar.
+          app-store-connect fetch-signing-files "$BUNDLE_ID" --create --platform IOS --type IOS_APP_STORE
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
@@ -34,7 +34,7 @@ workflows:
           cd ios && pod install
       - name: Flutter build ipa
         script: |
-          # DÜZELTME: --no-codesign kaldırıldı, TestFlight için imzalama eklendi.
+          # TestFlight için doğru imzalama ve build numarası artışı.
           flutter build ipa --release --export-method app-store --build-number $(($BUILD_NUMBER + 100))
     artifacts:
       - build/ios/ipa/*.ipa
