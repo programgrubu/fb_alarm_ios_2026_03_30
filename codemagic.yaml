@@ -5,7 +5,7 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
-      app_store_connect: Football Alarm API # Paneldeki API anahtarı isminle aynı olmalı
+      app_store_connect: Football Alarm API 
     environment:
       flutter: stable
       xcode: latest
@@ -28,7 +28,6 @@ workflows:
       - name: Fetch Signing Files from Apple (OTOMATİK ADIM)
         script: |
           # Bu komut Apple Developer hesabına gider, sertifikayı bulur ve indirir.
-          # Eğer sertifika yoksa, senin adına oluşturur.
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
           
       - name: Add Certificates to Keychain
