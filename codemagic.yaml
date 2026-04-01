@@ -11,7 +11,7 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - ios_signing # Paneldeki CERTIFICATE_PASSWORD şifresini buradan okur
+        - ios_signing # CERTIFICATE_PASSWORD burada
       vars:
         APP_STORE_APPLE_ID: 6742335191
         BUNDLE_ID: "com.football.alarm"
@@ -23,10 +23,10 @@ workflows:
           printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
       - name: Initialize Keychain
         script: keychain initialize
-      - name: Fetch Signing Files
-        script: |
-          # DÜZELTME: Şifreli sertifikayı zorla eşleştirmek için komutu güncelledik
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --create --platform IOS --type IOS_APP_STORE --certificate-key-password "$CERTIFICATE_PASSWORD"
+      
+      # HATA VEREN FETCH ADIMI TAMAMEN KALDIRILDI.
+      # ARTIK PANELDEKİ MANUEL SERTİFİKAYI KULLANACAK.
+
       - name: Add Certificates to Keychain
         script: keychain add-certificates
       - name: Flutter pub get
@@ -36,7 +36,7 @@ workflows:
           cd ios && pod install
       - name: Flutter build ipa
         script: |
-          # TestFlight gönderimi için hazırlık
+          # TestFlight için build numarasını artırarak paketle
           flutter build ipa --release --export-method app-store --build-number $(($BUILD_NUMBER + 100))
     artifacts:
       - build/ios/ipa/*.ipa
