@@ -5,13 +5,13 @@ workflows:
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
-      app_store_connect: Football Alarm API # Paneldeki API anahtarı isminle aynı olmalı
+      app_store_connect: Football Alarm API 
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
       groups:
-        - ios_signing # CM_CERTIFICATE, CM_CERTIFICATE_PASSWORD ve CM_PROVISIONING_PROFILE burada olmalı
+        - ios_signing 
       vars:
         APP_STORE_APPLE_ID: 6742335191
         BUNDLE_ID: "com.football.alarm"
@@ -27,16 +27,12 @@ workflows:
         
       - name: Set up Provisioning Profiles
         script: |
-          # Provisioning profile'ı sisteme kaydeder
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo $CM_PROVISIONING_PROFILE | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/football_alarm.mobileprovision
+          echo "$CM_PROVISIONING_PROFILE" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/football_alarm.mobileprovision
           
-      - name: Set up Code Signing Certificate (p12 dosyasından)
+      - name: Set up Code Signing Certificate
         script: |
-          # .p12 sertifikasını decode eder ve Keychain'e ekler
-          echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
-          
-          # HATA DÜZELTMESİ: Şifre değişkeni tırnak içine alındı
+          echo "$CM_CERTIFICATE" | base64 --decode > /tmp/certificate.p12
           keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password "$CM_CERTIFICATE_PASSWORD"
         
       - name: Flutter pub get
@@ -44,11 +40,11 @@ workflows:
         
       - name: Pod Install
         script: |
+          # Podfile'ı bulması için klasöre girip işlemi yapıyoruz
           cd ios && pod install
           
       - name: Flutter build ipa
         script: |
-          # Manuel sertifika ve profile kullanarak build işlemini başlatır
           flutter build ipa --release \
             --export-method app-store \
             --build-number $(($BUILD_NUMBER + 100))
