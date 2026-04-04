@@ -17,11 +17,11 @@ workflows:
         BUNDLE_ID: "com.football.alarm"
         APPLE_TEAM_ID: "3B9P62N8T2"
     scripts:
-      - name: Clean and Fix gitignore Encoding
+      - name: Clean and Fix gitignore
         script: |
           rm -f .gitignore
-          printf "node_modules/\n.dart_tool/\n.packages\nbuild/\nios/Podfile.lock\n" > .gitignore
-      
+          printf "node_modules/\n.dart_tool/\n.packages\nbuild/\n" > .gitignore
+
       - name: Initialize Keychain
         script: keychain initialize
         
@@ -38,11 +38,17 @@ workflows:
       - name: Flutter pub get
         script: flutter pub get
         
+      - name: Configure Flutter iOS
+        script: |
+          # Generated.xcconfig dosyasını oluşturmak için bu komut kritiktir
+          flutter build ios --config-only --release
+        
       - name: Pod Install
         script: |
-          # Önce Flutter'ın dosyaları oluşturduğundan emin oluyoruz
-          flutter precache --ios
-          cd ios && pod install
+          cd ios
+          rm -rf Pods
+          rm -f Podfile.lock
+          pod install --repo-update
           
       - name: Flutter build ipa
         script: |
