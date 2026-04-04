@@ -40,7 +40,8 @@ workflows:
         
       - name: Pod Install
         script: |
-          # Podfile'daki yolların doğru çözülmesi için klasöre girip çalıştırıyoruz
+          # Önce Flutter'ın dosyaları oluşturduğundan emin oluyoruz
+          flutter precache --ios
           cd ios && pod install
           
       - name: Flutter build ipa
