@@ -36,13 +36,19 @@ workflows:
         
       - name: Flutter pub get
         script: flutter pub get
+
+      - name: Clear Pods Cache
+        script: |
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
+          rm -rf ~/Library/Developer/Xcode/DerivedData
         
       - name: Configure Flutter iOS
         script: |
           # Önce konfigürasyon dosyalarını oluşturuyoruz
           flutter precache --ios
           cd ios
-          # Podfile'ı standart Flutter yapısına getiriyoruz (Hatanın asıl çözümü)
+          # Podfile'ı standart Flutter yapısına getiriyoruz
           cat <<EOF > Podfile
           platform :ios, '14.0'
           
@@ -70,8 +76,6 @@ workflows:
       - name: Pod Install
         script: |
           cd ios
-          rm -rf Pods
-          rm -f Podfile.lock
           pod install --repo-update
           
       - name: Flutter build ipa
