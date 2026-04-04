@@ -1,5 +1,5 @@
-# Bu satır en üstte mutlaka olmalı. Flutter'ın yardımcı metodlarını içeri aktarır.
-require File.expand_path(File.join('..', '..', '..', 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
+# Bu satır Codemagic sunucusundaki Flutter yoluna direkt ulaşır
+require File.expand_path(File.join('..', '..', 'flutter', 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
 
 platform :ios, '14.0'
 
@@ -16,6 +16,7 @@ post_install do |installer|
     
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
   end
 end
