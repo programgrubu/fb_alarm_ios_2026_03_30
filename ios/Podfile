@@ -1,18 +1,21 @@
 # Flutter yardımcı scriptini yüklemek için dinamik yol belirleme
 def flutter_root
+  # 1. Önce Generated.xcconfig dosyasını kontrol et
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   
-  # Eğer dosya yoksa (Windows/MacOS farkı nedeniyle) alternatif yolları dene
-  unless File.exist?(generated_xcode_build_settings_path)
-    # Codemagic ve standart Flutter yapısı için fallback
-    return File.expand_path(File.join('..', '..', '..'), __FILE__)
+  if File.exist?(generated_xcode_build_settings_path)
+    File.foreach(generated_xcode_build_settings_path) do |line|
+      matches = line.match(/\AFLUTTER_ROOT=(.*)\z/)
+      return matches[1].strip if matches
+    end
   end
 
-  File.foreach(generated_xcode_build_settings_path) do |line|
-    matches = line.match(/\AFLUTTER_ROOT=(.*)\z/)
-    return matches[1].strip if matches
-  end
-  raise "Generated.xcconfig içinde FLUTTER_ROOT bulunamadı."
+  # 2. Eğer dosyadan bulamazsa (Codemagic gibi ortamlar için) sistem değişkenine bak
+  # Bu kısım hatayı kesin olarak çözen kısımdır.
+  return ENV['FLUTTER_ROOT'] if ENV['FLUTTER_ROOT']
+  
+  # 3. Fallback: Eğer hiçbiri yoksa standart dizine bak
+  File.expand_path(File.join('..', '..', '..'), __FILE__)
 end
 
 # Hata veren require satırı yerine bu güvenli yüklemeyi kullanıyoruz
@@ -21,7 +24,7 @@ podhelper_path = File.expand_path(File.join(flutter_root, 'packages', 'flutter_t
 if File.exist?(podhelper_path)
   require podhelper_path
 else
-  # Eğer yukarıdaki bulamazsa doğrudan çevre değişkeninden çekmeyi dene (Codemagic için en garantisi)
+  # En son çare: Flutter'ın sistemdeki ana yolundan direkt çek
   require File.expand_path(File.join(ENV['FLUTTER_ROOT'] || '..', 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
 end
 
