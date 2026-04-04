@@ -1,8 +1,12 @@
-# Flutter yardımcı scriptini yüklemek için dinamik yol belirleme
+# Flutter'ın sistemdeki yerini dinamik ve güvenli bulan fonksiyon
 def flutter_root
-  # 1. Önce Generated.xcconfig dosyasını kontrol et
+  # 1. Önce Codemagic gibi CI ortamları için sistem değişkenine bak (En garantisi budur)
+  if ENV['FLUTTER_ROOT']
+    return ENV['FLUTTER_ROOT']
+  end
+
+  # 2. Eğer sistem değişkeni yoksa Generated.xcconfig dosyasını kontrol et
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
-  
   if File.exist?(generated_xcode_build_settings_path)
     File.foreach(generated_xcode_build_settings_path) do |line|
       matches = line.match(/\AFLUTTER_ROOT=(.*)\z/)
@@ -10,22 +14,18 @@ def flutter_root
     end
   end
 
-  # 2. Eğer dosyadan bulamazsa (Codemagic gibi ortamlar için) sistem değişkenine bak
-  # Bu kısım hatayı kesin olarak çözen kısımdır.
-  return ENV['FLUTTER_ROOT'] if ENV['FLUTTER_ROOT']
-  
-  # 3. Fallback: Eğer hiçbiri yoksa standart dizine bak
+  # 3. Fallback: Hiçbiri yoksa varsayılan üst dizine bak
   File.expand_path(File.join('..', '..', '..'), __FILE__)
 end
 
-# Hata veren require satırı yerine bu güvenli yüklemeyi kullanıyoruz
+# Dinamik yolu kullanarak podhelper'ı güvenli şekilde yükle
 podhelper_path = File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
 
 if File.exist?(podhelper_path)
   require podhelper_path
 else
-  # En son çare: Flutter'ın sistemdeki ana yolundan direkt çek
-  require File.expand_path(File.join(ENV['FLUTTER_ROOT'] || '..', 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
+  # Dosya fiziksel olarak bulunamazsa hatayı anlamak için mesaj fırlat
+  raise "podhelper bulunamadı! Aranan yol: #{podhelper_path}"
 end
 
 platform :ios, '14.0'
@@ -42,7 +42,7 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
-      # Proje gereksinimlerini koruyoruz
+      # Mevcut proje gereksinimlerinizi koruyoruz
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
