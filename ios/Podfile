@@ -1,11 +1,11 @@
 # Flutter'ın sistemdeki yerini dinamik ve güvenli bulan fonksiyon
 def flutter_root
-  # 1. Önce Codemagic gibi CI ortamları için sistem değişkenine bak (En garantisi budur)
+  # 1. ÖNCE: Codemagic gibi CI ortamları için sistem değişkenine bak (Hatayı çözen ana kısım)
   if ENV['FLUTTER_ROOT']
     return ENV['FLUTTER_ROOT']
   end
 
-  # 2. Eğer sistem değişkeni yoksa Generated.xcconfig dosyasını kontrol et
+  # 2. SONRA: Yerel bilgisayarınızdaki Generated.xcconfig dosyasını kontrol et
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   if File.exist?(generated_xcode_build_settings_path)
     File.foreach(generated_xcode_build_settings_path) do |line|
@@ -14,7 +14,7 @@ def flutter_root
     end
   end
 
-  # 3. Fallback: Hiçbiri yoksa varsayılan üst dizine bak
+  # 3. EN SON: Hiçbiri yoksa varsayılan üst dizine bak
   File.expand_path(File.join('..', '..', '..'), __FILE__)
 end
 
@@ -24,8 +24,8 @@ podhelper_path = File.expand_path(File.join(flutter_root, 'packages', 'flutter_t
 if File.exist?(podhelper_path)
   require podhelper_path
 else
-  # Dosya fiziksel olarak bulunamazsa hatayı anlamak için mesaj fırlat
-  raise "podhelper bulunamadı! Aranan yol: #{podhelper_path}"
+  # Dosya bulunamazsa hatayı anlamak için yolu ekrana yazdırır
+  raise "podhelper bulunamadı! Lütfen önce 'flutter pub get' çalıştırın. Aranan yol: #{podhelper_path}"
 end
 
 platform :ios, '14.0'
@@ -42,7 +42,7 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
-      # Mevcut proje gereksinimlerinizi koruyoruz
+      # Mevcut proje gereksinimlerinizi noktasına dokunmadan koruyoruz
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
     end
