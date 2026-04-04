@@ -1,5 +1,18 @@
-# Bu satır Codemagic sunucusundaki Flutter yoluna direkt ulaşır
-require File.expand_path(File.join('..', '..', 'flutter', 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
+# Flutter'ın sistemdeki gerçek yolunu bulan fonksiyon
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} bulunamadı. Lütfen önce 'flutter pub get' çalıştırın."
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/\AFLUTTER_ROOT=(.*)\z/)
+    return matches[1] if matches
+  end
+  raise "Generated.xcconfig içinde FLUTTER_ROOT bulunamadı."
+end
+
+require File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
 
 platform :ios, '14.0'
 
