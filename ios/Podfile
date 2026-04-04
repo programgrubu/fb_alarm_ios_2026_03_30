@@ -1,11 +1,13 @@
-# Flutter'ın sistemdeki yerini dinamik ve güvenli bulan fonksiyon
+# Podfile
+
+# 1. Flutter SDK yolunu güvenli bir şekilde belirleyen bölüm
 def flutter_root
-  # 1. ÖNCE: Codemagic gibi CI ortamları için sistem değişkenine bak (Hatayı çözen ana kısım)
+  # Codemagic ortam değişkenini kontrol et
   if ENV['FLUTTER_ROOT']
     return ENV['FLUTTER_ROOT']
   end
 
-  # 2. SONRA: Yerel bilgisayarınızdaki Generated.xcconfig dosyasını kontrol et
+  # Yerel yapılandırma dosyasını kontrol et (Generated.xcconfig)
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   if File.exist?(generated_xcode_build_settings_path)
     File.foreach(generated_xcode_build_settings_path) do |line|
@@ -14,37 +16,45 @@ def flutter_root
     end
   end
 
-  # 3. EN SON: Hiçbiri yoksa varsayılan üst dizine bak
+  # Eğer yukarıdakiler bulunamazsa standart üst dizin yolunu dene
   File.expand_path(File.join('..', '..', '..'), __FILE__)
 end
 
-# Dinamik yolu kullanarak podhelper'ı güvenli şekilde yükle
+# 2. podhelper.rb dosyasını yükle (Bu kısım hatayı çözer)
+# Eğer ana dizinde bulamazsa, Flutter klasörü içindeki yedeğe bakar
 podhelper_path = File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__)
 
 if File.exist?(podhelper_path)
   require podhelper_path
 else
-  # Dosya bulunamazsa hatayı anlamak için yolu ekrana yazdırır
-  raise "podhelper bulunamadı! Lütfen önce 'flutter pub get' çalıştırın. Aranan yol: #{podhelper_path}"
+  # CI ortamları için alternatif yedek yol
+  require File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
 end
 
+# Proje Ayarları
 platform :ios, '14.0'
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  # Flutter pod'larını yükle
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
+# 3. Post Install Hook - Özel ayarlarınızı koruyan bölüm
 post_install do |installer|
   installer.pods_project.targets.each do |target|
+    # Flutter'ın kendi build ayarlarını ekle
     flutter_additional_ios_build_settings(target)
     
     target.build_configurations.each do |config|
-      # Mevcut proje gereksinimlerinizi noktasına dokunmadan koruyoruz
+      # Belirlediğiniz özel ayarları burada koruyoruz
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
+      
+      # Firebase veya diğer paketlerde sıkça gereken 'arc' hatası önlemi
+      config.build_settings['GCC_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
     end
   end
 end
