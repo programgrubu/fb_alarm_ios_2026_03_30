@@ -1,9 +1,8 @@
-# 1. Flutter SDK yolunu sistemden (ENV) dinamik ve güvenli şekilde alalım
+# 1. Sisteme Flutter yolunu sor (Kesin Çözüm)
 def flutter_root
-  # Codemagic için en garanti yol ENV değişkenidir
   return ENV['FLUTTER_ROOT'] if ENV['FLUTTER_ROOT']
-
-  # Yerel geliştirme ortamı (VS Code/Android Studio) için kontrol
+  
+  # Yerel çalışma için yedek kontrol
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
   if File.exist?(generated_xcode_build_settings_path)
     File.foreach(generated_xcode_build_settings_path) do |line|
@@ -11,50 +10,33 @@ def flutter_root
       return matches[1].strip if matches
     end
   end
-
-  # Eğer hiçbir veri yoksa varsayılan üst dizin
-  File.expand_path(File.join('..', '..', '..'), __FILE__)
+  # Eğer bulunamazsa hata verme, boş dönme (alt aşamada yakalanacak)
 end
 
-# 2. podhelper.rb dosyasını yükle (Hata veren eski tek satırlık require yerine bu blok kullanılmalı)
-# Codemagic'teki hatayı önlemek için yolu temizleyip (expand_path) yüklüyoruz
-begin
-  podhelper_path = File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb'))
-  if File.exist?(podhelper_path)
-    load podhelper_path
-  else
-    # Yedek yol: Proje içindeki Flutter klasörü
-    load File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
-  end
-rescue => e
-  puts "Podhelper yüklenirken hata oluştu, alternatif aranıyor: #{e.message}"
-  # Son çare: Standart yükleme denemesi
-  require File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
+# 2. Dosyayı Yükle (require yerine load kullanarak zorla)
+f_root = flutter_root
+if f_root
+  podhelper_path = File.join(f_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb')
+  load podhelper_path
+else
+  # Son çare: Proje içindeki yerel dosyayı dene
+  load File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
 end
 
-# Proje Ayarları
+# Geri kalan standart Runner ayarlarınız...
 platform :ios, '14.0'
-
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
-
-  # Flutter pod'larını yükle
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
 
-# 3. Post Install Hook - Özel ayarlarınızı koruyan bölüm
 post_install do |installer|
   installer.pods_project.targets.each do |target|
-    # Flutter'ın kendi build ayarlarını ekle
     flutter_additional_ios_build_settings(target)
-    
     target.build_configurations.each do |config|
-      # Belirlediğiniz özel ayarlar
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
       config.build_settings['ENABLE_BITCODE'] = 'NO'
-      
-      # Firebase veya diğer paketlerdeki header uyarılarını önleme
       config.build_settings['GCC_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER'] = 'NO'
     end
   end
