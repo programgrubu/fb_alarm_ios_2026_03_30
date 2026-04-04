@@ -40,7 +40,7 @@ workflows:
         
       - name: Pod Install
         script: |
-          # Podfile'ı bulması için klasöre girip işlemi yapıyoruz
+          # Podfile'daki yolların doğru çözülmesi için klasöre girip çalıştırıyoruz
           cd ios && pod install
           
       - name: Flutter build ipa
