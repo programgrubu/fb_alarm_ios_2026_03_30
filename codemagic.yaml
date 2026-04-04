@@ -35,7 +35,9 @@ workflows:
         script: |
           # .p12 sertifikasını decode eder ve Keychain'e ekler
           echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
-          keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CM_CERTIFICATE_PASSWORD
+          
+          # HATA DÜZELTMESİ: Şifre değişkeni tırnak içine alındı
+          keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password "$CM_CERTIFICATE_PASSWORD"
         
       - name: Flutter pub get
         script: flutter pub get
