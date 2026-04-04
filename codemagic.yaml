@@ -11,7 +11,7 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - ios_signing # CERTIFICATE_PASSWORD değişkeninin olduğu grup
+        - ios_signing # CM_CERTIFICATE, CM_CERTIFICATE_PASSWORD ve CM_PROVISIONING_PROFILE burada olmalı
       vars:
         APP_STORE_APPLE_ID: 6742335191
         BUNDLE_ID: "com.football.alarm"
@@ -25,14 +25,17 @@ workflows:
       - name: Initialize Keychain
         script: keychain initialize
         
-      - name: Fetch Signing Files from Apple (OTOMATİK ADIM)
+      - name: Set up Provisioning Profiles
         script: |
-          # Bu komut Apple Developer hesabına gider, sertifikayı bulur ve indirir.
-          # Eğer sertifika yoksa, senin adına oluşturur.
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type IOS_APP_STORE --create
+          # Provisioning profile'ı sisteme kaydeder
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo $CM_PROVISIONING_PROFILE | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/football_alarm.mobileprovision
           
-      - name: Add Certificates to Keychain
-        script: keychain add-certificates
+      - name: Set up Code Signing Certificate (p12 dosyasından)
+        script: |
+          # .p12 sertifikasını decode eder ve Keychain'e ekler
+          echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
+          keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CM_CERTIFICATE_PASSWORD
         
       - name: Flutter pub get
         script: flutter pub get
@@ -43,7 +46,7 @@ workflows:
           
       - name: Flutter build ipa
         script: |
-          # Build numarasını her seferinde 1 artırarak TestFlight'a hazır hale getirir
+          # Manuel sertifika ve profile kullanarak build işlemini başlatır
           flutter build ipa --release \
             --export-method app-store \
             --build-number $(($BUILD_NUMBER + 100))
