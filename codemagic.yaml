@@ -1,20 +1,19 @@
-# Football Alarm - Codemagic Build Configuration
 workflows:
   ios-workflow:
     name: iOS TestFlight Build
     max_build_duration: 60
     instance_type: mac_mini_m2
     integrations:
-      app_store_connect: Football Alarm API 
+      app_store_connect: "Football Alarm API"
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
       groups:
-        - ios_signing 
+        - ios_signing
       vars:
         APP_STORE_APPLE_ID: 6742335191
-        BUNDLE_ID: "com.football.alarm"
+        BUNDLE_ID: "com.programgrubu.football.alarm1"
         APPLE_TEAM_ID: "3B9P62N8T2"
     scripts:
       - name: Clean and Fix gitignore
@@ -40,8 +39,8 @@ workflows:
         
       - name: Configure Flutter iOS
         script: |
-          # Generated.xcconfig dosyasını oluşturmak için bu komut kritiktir
-          flutter build ios --config-only --release
+          # Bu komut imza aramadan dosyaları hazırlar.
+          flutter build ios --config-only --release --no-codesign
         
       - name: Pod Install
         script: |
@@ -52,6 +51,7 @@ workflows:
           
       - name: Flutter build ipa
         script: |
+          # TestFlight için asıl imzalama burada gerçekleşir
           flutter build ipa --release \
             --export-method app-store \
             --build-number $(($BUILD_NUMBER + 100))
