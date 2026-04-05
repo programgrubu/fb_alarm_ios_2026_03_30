@@ -47,9 +47,12 @@ workflows:
         
       - name: Configure Flutter iOS
         script: |
-          # Flutter'ın iOS dosyalarını indirdiğinden emin oluyoruz
           flutter precache --ios
           cd ios
+          
+          # HATA ÇÖZÜMÜ: podhelper içindeki yanlış yolu Codemagic yoluyla değiştiriyoruz
+          sed -i '' "s|File.join('..', '..', '..', '..', 'bin', 'cache', 'artifacts', 'engine')|File.join(ENV['FLUTTER_ROOT'], 'bin', 'cache', 'artifacts', 'engine')|g" Flutter/podhelper.rb
+          
           cat <<EOF > Podfile
           platform :ios, '15.0'
           
@@ -74,9 +77,8 @@ workflows:
         
       - name: Pod Install
         script: |
-          # Flutter SDK yolunu Podfile'a tanıtıyoruz (Hatanın çözümü)
+          # Flutter SDK yolunu tanımlıyoruz
           export FLUTTER_ROOT=$HOME/programs/flutter
-          export PATH="$PATH:$FLUTTER_ROOT/bin"
           
           cd ios
           pod repo update
