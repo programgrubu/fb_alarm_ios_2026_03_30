@@ -49,21 +49,17 @@ workflows:
         script: |
           flutter precache --ios
           cd ios
-          
-          # HATA ÇÖZÜMÜ: podhelper içindeki yanlış yolu Codemagic yoluyla değiştiriyoruz
+          # podhelper içindeki yolu Codemagic yoluyla güncelliyoruz
           sed -i '' "s|File.join('..', '..', '..', '..', 'bin', 'cache', 'artifacts', 'engine')|File.join(ENV['FLUTTER_ROOT'], 'bin', 'cache', 'artifacts', 'engine')|g" Flutter/podhelper.rb
           
           cat <<EOF > Podfile
           platform :ios, '15.0'
-          
           require_relative File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
-
           target 'Runner' do
             use_frameworks!
             use_modular_headers!
             flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
           end
-          
           post_install do |installer|
             installer.pods_project.targets.each do |target|
               flutter_additional_ios_build_settings(target)
@@ -77,18 +73,19 @@ workflows:
         
       - name: Pod Install
         script: |
-          # Flutter SDK yolunu tanımlıyoruz
           export FLUTTER_ROOT=$HOME/programs/flutter
-          
           cd ios
           pod repo update
           pod install --repo-update
           
       - name: Flutter build ipa
         script: |
+          # İmzalama hatasını çözmek için manuel imzalama parametrelerini ekliyoruz
           flutter build ipa --release \
             --export-method app-store \
-            --build-number $(($BUILD_NUMBER + 100))
+            --build-number $(($BUILD_NUMBER + 100)) \
+            --bundle-sidentifier "$BUNDLE_ID" \
+            --no-codesign
             
     artifacts:
       - build/ios/ipa/*.ipa
