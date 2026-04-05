@@ -80,11 +80,10 @@ workflows:
           
       - name: Flutter build ipa
         script: |
-          # Yazım hatası düzeltildi: bundle-identifier
+          # Hatalı parametreler silindi, en temiz build komutu:
           flutter build ipa --release \
             --export-method app-store \
             --build-number $(($BUILD_NUMBER + 100)) \
-            --bundle-identifier "$BUNDLE_ID" \
             --no-codesign
             
     artifacts:
