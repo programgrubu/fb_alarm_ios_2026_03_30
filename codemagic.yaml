@@ -49,7 +49,6 @@ workflows:
         script: |
           flutter precache --ios
           cd ios
-          # podhelper içindeki yolu Codemagic yoluyla güncelliyoruz
           sed -i '' "s|File.join('..', '..', '..', '..', 'bin', 'cache', 'artifacts', 'engine')|File.join(ENV['FLUTTER_ROOT'], 'bin', 'cache', 'artifacts', 'engine')|g" Flutter/podhelper.rb
           
           cat <<EOF > Podfile
@@ -66,6 +65,8 @@ workflows:
               target.build_configurations.each do |config|
                 config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
                 config.build_settings['ENABLE_BITCODE'] = 'NO'
+                # Team ID hatasını aşmak için buraya ekleme yapıyoruz:
+                config.build_settings['DEVELOPMENT_TEAM'] = '3B9P62N8T2'
               end
             end
           end
@@ -78,13 +79,15 @@ workflows:
           pod repo update
           pod install --repo-update
           
-      - name: Flutter build ipa
+      - name: Flutter build ios
         script: |
-          # Hatalı parametreler silindi, en temiz build komutu:
-          flutter build ipa --release \
-            --export-method app-store \
-            --build-number $(($BUILD_NUMBER + 100)) \
-            --no-codesign
+          # ipa yerine ios build kullanarak Xcode'un sertifika kontrolünü script aşamasında atlıyoruz
+          flutter build ios --release --no-codesign --build-number $(($BUILD_NUMBER + 100))
+
+      - name: Build IPA with Codemagic Tool
+        script: |
+          # Flutter'ın oluşturduğu build'i alıp Codemagic'in kendi aracıyla IPA'ya dönüştürüyoruz
+          xcode-project build-ipa --workspace ios/Runner.xcworkspace --scheme Runner
             
     artifacts:
       - build/ios/ipa/*.ipa
