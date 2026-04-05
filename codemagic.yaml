@@ -80,11 +80,11 @@ workflows:
           
       - name: Flutter build ipa
         script: |
-          # İmzalama hatasını çözmek için manuel imzalama parametrelerini ekliyoruz
+          # Yazım hatası düzeltildi: bundle-identifier
           flutter build ipa --release \
             --export-method app-store \
             --build-number $(($BUILD_NUMBER + 100)) \
-            --bundle-sidentifier "$BUNDLE_ID" \
+            --bundle-identifier "$BUNDLE_ID" \
             --no-codesign
             
     artifacts:
