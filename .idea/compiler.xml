@@ -2,18 +2,6 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
-      <module name="android.cloud_firestore" target="21" />
-      <module name="android.firebase_auth" target="21" />
-      <module name="android.firebase_core" target="21" />
-      <module name="android.flutter_local_notifications" target="21" />
-      <module name="android.flutter_timezone" target="21" />
-      <module name="android.google_mobile_ads" target="21" />
-      <module name="android.google_sign_in_android" target="21" />
-      <module name="android.in_app_purchase_android" target="21" />
-      <module name="android.shared_preferences_android" target="21" />
-      <module name="android.sign_in_with_apple" target="21" />
-      <module name="android.webview_flutter_android" target="21" />
-      <module name="android.workmanager_android" target="21" />
       <module name="io.flutter.plugins.firebase.auth.android.firebase_auth" target="21" />
       <module name="io.flutter.plugins.firebase.cloudfirestore.android.cloud_firestore" target="21" />
       <module name="io.flutter.plugins.firebase.core.android.firebase_core" target="21" />
