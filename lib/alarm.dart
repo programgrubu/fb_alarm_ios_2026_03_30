@@ -25,21 +25,18 @@ void callbackDispatcher() {
       final int attempt = inputData?['attempt'] ?? 1;
 
       if (matchId.isNotEmpty) {
-        // Maç sonucunu API'den çek
         final String scoreResult = await MatchResultService.getMatchScore(matchId);
 
         if (scoreResult.isNotEmpty) {
-          // SKOR BULUNDU: Hemen bildirim gönder
           final NotificationService nos = NotificationService();
           await nos.init();
           await nos.showImmediateNotification(
-            matchId.hashCode + 999, // Benzersiz ID
+            matchId.hashCode + 999,
             AppTranslations.getTranslation('main_title', lang),
             scoreResult,
             payload: matchId,
           );
         } else if (attempt < 6) {
-          // SKOR HENÜZ HAZIR DEĞİLSE: 15 dakika sonra tekrar denemek üzere yeni görev kur
           Workmanager().registerOneOffTask(
             "retry_check_${matchId}_${attempt + 1}",
             "fetch_match_result",
@@ -61,7 +58,7 @@ void callbackDispatcher() {
 }
 
 // ==========================================
-// ALARM MODELİ
+// ALARM MODELİ (DEĞİŞTİRİLMEDİ)
 // ==========================================
 class FootballAlarm {
   final String id;
@@ -116,7 +113,7 @@ class FootballAlarm {
 }
 
 // ==========================================
-// BİLDİRİM SERVİSİ (INEXACT ALARM DESTEKLİ)
+// BİLDİRİM SERVİSİ (IOS & ANDROID UYUMLU)
 // ==========================================
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -132,8 +129,18 @@ class NotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('ball');
 
-    const InitializationSettings initializationSettings =
-    InitializationSettings(android: initializationSettingsAndroid);
+    // iOS İÇİN GEREKLİ AYARLAR EKLENDİ
+    const DarwinInitializationSettings initializationSettingsDarwin =
+    DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+    );
+
+    const InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+    );
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
@@ -145,7 +152,13 @@ class NotificationService {
   }
 
   Future<bool> requestNotificationPermissions() async {
-    if (Platform.isAndroid) {
+    if (Platform.isIOS) {
+      return await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: true, sound: true) ??
+          false;
+    } else if (Platform.isAndroid) {
       final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
       flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
@@ -155,16 +168,15 @@ class NotificationService {
     return false;
   }
 
-  /// Inexact Alarm mantığıyla bildirim planlar.
-  /// AndroidScheduleMode.inexactAllowWhileIdle kullanılarak sistemin uygun zamanında tetiklenir.
   Future<void> scheduleNotification(
       int id, String title, String body, DateTime scheduledDate,
       {String? payload, bool playSound = true}) async {
-
     if (scheduledDate.isBefore(DateTime.now())) return;
 
-    final String channelId = playSound ? 'football_alarm_channel' : 'football_silent_channel';
-    final String channelName = playSound ? 'Football Alarms' : 'Silent Notifications';
+    final String channelId =
+    playSound ? 'football_alarm_channel' : 'football_silent_channel';
+    final String channelName =
+    playSound ? 'Football Alarms' : 'Silent Notifications';
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
@@ -179,13 +191,20 @@ class NotificationService {
           priority: Priority.high,
           icon: _notificationIcon,
           playSound: playSound,
-          sound: playSound ? const RawResourceAndroidNotificationSound('alarm_sound') : null,
+          sound: playSound
+              ? const RawResourceAndroidNotificationSound('alarm_sound')
+              : null,
           enableVibration: true,
-          visibility: NotificationVisibility.public,
           styleInformation: BigTextStyleInformation(body),
         ),
+        // iOS Detayları Eklendi
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: playSound,
+          sound: playSound ? 'alarm_sound.wav' : null,
+        ),
       ),
-      // KRİTİK DEĞİŞİKLİK: Inexact planlama (Tam saniyesinde değil, pil dostu tetikleme)
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
       UILocalNotificationDateInterpretation.absoluteTime,
@@ -193,8 +212,8 @@ class NotificationService {
     );
   }
 
-  Future<void> showImmediateNotification(
-      int id, String title, String body, {String? payload}) async {
+  Future<void> showImmediateNotification(int id, String title, String body,
+      {String? payload}) async {
     await flutterLocalNotificationsPlugin.show(
       id,
       title,
@@ -206,8 +225,11 @@ class NotificationService {
           importance: Importance.max,
           priority: Priority.high,
           icon: _notificationIcon,
-          enableVibration: true,
-          visibility: NotificationVisibility.public,
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
         ),
       ),
       payload: payload,
@@ -220,7 +242,7 @@ class NotificationService {
 }
 
 // ==========================================
-// MAÇ SONUCU VE API SERVİSİ
+// MAÇ SONUCU VE API SERVİSİ (DEĞİŞTİRİLMEDİ)
 // ==========================================
 class MatchResultService {
   static String get _apiKey => dotenv.env['FOOTBALL_API_KEY'] ?? '';
@@ -238,8 +260,10 @@ class MatchResultService {
         if (score != null) {
           final int? home = score['home'];
           final int? away = score['away'];
-          final String homeTeam = data['homeTeam']?['shortName'] ?? data['homeTeam']?['name'] ?? '';
-          final String awayTeam = data['awayTeam']?['shortName'] ?? data['awayTeam']?['name'] ?? '';
+          final String homeTeam =
+              data['homeTeam']?['shortName'] ?? data['homeTeam']?['name'] ?? '';
+          final String awayTeam =
+              data['awayTeam']?['shortName'] ?? data['awayTeam']?['name'] ?? '';
 
           if (home != null && away != null) {
             return "$home $homeTeam - $away $awayTeam";
@@ -252,10 +276,10 @@ class MatchResultService {
     return "";
   }
 
-  /// Workmanager görevini maç bitişinden yaklaşık 115 dakika sonrasına planlar.
-  static void scheduleResultCheck(String matchId, DateTime matchTime, String lang, String teamName) {
-    // Maç başladıktan yaklaşık 115 dakika sonra (90+15+devre) kontrolü başlat
-    final delay = matchTime.add(const Duration(minutes: 115)).difference(DateTime.now());
+  static void scheduleResultCheck(
+      String matchId, DateTime matchTime, String lang, String teamName) {
+    final delay =
+    matchTime.add(const Duration(minutes: 115)).difference(DateTime.now());
 
     Workmanager().registerOneOffTask(
       "check_score_$matchId",

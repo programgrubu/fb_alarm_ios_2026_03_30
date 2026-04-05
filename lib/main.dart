@@ -379,6 +379,9 @@ class _MainShellState extends State<MainShell> {
   BannerAd? _bannerAd;
   InterstitialAd? _interstitialAd;
 
+  // GÜNCELLEME: GoogleSignIn nesnesi sınıf düzeyine taşındı
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   String tr(String key) => AppTranslations.getTranslation(key, widget.currentLanguageCode);
   String tr2(String key) => AppTranslations2.getTranslation(key, widget.currentLanguageCode);
 
@@ -715,9 +718,8 @@ class _MainShellState extends State<MainShell> {
   Future<void> logOff() async {
     await NotificationService().cancelAllNotifications();
     await FirebaseAuth.instance.signOut();
-    // GÜNCELLEME: GoogleSignIn kullanımı
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    await googleSignIn.signOut();
+    // GÜNCELLEME: Global instance üzerinden çıkış yapıldı
+    await _googleSignIn.signOut();
     setState(() {
       currentUser = null;
       currentIndex = 0;
@@ -738,9 +740,8 @@ class _MainShellState extends State<MainShell> {
       await prefs.remove('premium_$uid');
       await NotificationService().cancelAllNotifications();
       await currentUser!.delete();
-      // GÜNCELLEME: GoogleSignIn kullanımı
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut();
+      // GÜNCELLEME: Global instance üzerinden çıkış yapıldı
+      await _googleSignIn.signOut();
       setState(() {
         currentUser = null;
         currentIndex = 0;
@@ -835,9 +836,9 @@ class _MainShellState extends State<MainShell> {
   // GOOGLE AUTH MANTIĞI
   Future<void> handleAuth() async {
     try {
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut();
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+      // GÜNCELLEME: GoogleSignIn kullanımı düzeltildi
+      await _googleSignIn.signOut();
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
@@ -1593,6 +1594,48 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    return ResultInnerView(
+      b3: b3,
+      b24: b24,
+      ms: ms,
+      mr: mr,
+      locked: locked,
+      showFinalContinue: showFinalContinue,
+      fade: _fade,
+      alarmInfo: widget.alarmInfo,
+      matchDate: widget.matchDate,
+      country: widget.country,
+      team: widget.team,
+      tr: widget.tr,
+      onB3Changed: (v) => setState(() => b3 = v),
+      onB24Changed: (v) => setState(() => b24 = v),
+      onMSChanged: (v) => setState(() => ms = v),
+      onMRChanged: (v) => setState(() => mr = v),
+      onFinished: widget.onFinished,
+      onAnimate: () => _controller.forward(),
+    );
+  }
+}
+
+// ResultView için alt bileşen (Temizleme amacıyla ayrıldı)
+class ResultInnerView extends StatelessWidget {
+  final bool b3, b24, ms, mr, locked, showFinalContinue;
+  final Animation<double> fade;
+  final String alarmInfo, matchDate, country, team;
+  final String Function(String) tr;
+  final Function(bool) onB3Changed, onB24Changed, onMSChanged, onMRChanged;
+  final VoidCallback onFinished, onAnimate;
+
+  const ResultInnerView({
+    super.key, required this.b3, required this.b24, required this.ms, required this.mr,
+    required this.locked, required this.showFinalContinue, required this.fade,
+    required this.alarmInfo, required this.matchDate, required this.country, required this.team,
+    required this.tr, required this.onB3Changed, required this.onB24Changed,
+    required this.onMSChanged, required this.onMRChanged, required this.onFinished, required this.onAnimate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 20, 16, 20),
@@ -1605,38 +1648,38 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
                   color: Colors.black.withOpacity(0.05),
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.red.withOpacity(0.3))),
-              child: Text("${widget.alarmInfo}\n${widget.matchDate}".toUpperCase(),
+              child: Text("$alarmInfo\n$matchDate".toUpperCase(),
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: DeviceSize.responsiveWidth(context, 16, 20, 24),
                       fontWeight: FontWeight.w900,
                       color: Colors.red))),
           const SizedBox(height: 16),
-          Text('${widget.country} - ${widget.team}'.toUpperCase(),
+          Text('$country - $team'.toUpperCase(),
               style: TextStyle(
                   fontSize: DeviceSize.responsiveWidth(context, 20, 26, 32),
                   fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           FadeTransition(
-              opacity: _fade,
-              child: Text(widget.tr('alarm_set'),
+              opacity: fade,
+              child: Text(tr('alarm_set'),
                   style: TextStyle(
                       color: Colors.green,
                       fontSize: DeviceSize.responsiveWidth(context, 20, 26, 32),
                       fontWeight: FontWeight.bold))),
           const SizedBox(height: 20),
-          _alarmRow(widget.tr('alarm_3_days'), b3, (v) => setState(() => b3 = v)),
-          _alarmRow(widget.tr('alarm_24_hours'), b24, (v) => setState(() => b24 = v)),
-          _alarmRow(widget.tr('alarm_match_start'), ms, (v) => setState(() => ms = v)),
-          _alarmRow(widget.tr('alarm_match_result'), mr, (v) => setState(() => mr = v)),
+          _alarmRow(context, tr('alarm_3_days'), b3, onB3Changed),
+          _alarmRow(context, tr('alarm_24_hours'), b24, onB24Changed),
+          _alarmRow(context, tr('alarm_match_start'), ms, onMSChanged),
+          _alarmRow(context, tr('alarm_match_result'), mr, onMRChanged),
           const SizedBox(height: 30),
           CustomImageButton(
-              text: widget.tr('continue'),
-              onTap: showFinalContinue ? widget.onFinished : () => _controller.forward()),
+              text: tr('continue'),
+              onTap: showFinalContinue ? onFinished : onAnimate),
         ]));
   }
 
-  Widget _alarmRow(String text, bool val, Function(bool) onChanged) {
+  Widget _alarmRow(BuildContext context, String text, bool val, Function(bool) onChanged) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -1647,8 +1690,8 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
           CustomSwitch(
               value: val,
               onChanged: locked ? null : onChanged,
-              onLabel: widget.tr('on'),
-              offLabel: widget.tr('off'))
+              onLabel: tr('on'),
+              offLabel: tr('off'))
         ]));
   }
 }
