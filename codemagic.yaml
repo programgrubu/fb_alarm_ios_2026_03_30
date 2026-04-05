@@ -45,15 +45,13 @@ workflows:
         
       - name: Configure Flutter iOS
         script: |
-          # Önce konfigürasyon dosyalarını oluşturuyoruz
           flutter precache --ios
           cd ios
-          # Podfile'ı standart Flutter yapısına getiriyoruz
           cat <<EOF > Podfile
           platform :ios, '14.0'
           
-          # Flutter'ın yardımcı scriptini içeri aktarır
-          require File.expand_path(File.join('..', '..', '..', 'packages', 'flutter_tools', 'bin', 'podhelper'), __FILE__) rescue require File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
+          # Codemagic için en güvenli iç yol budur:
+          require_relative File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
 
           target 'Runner' do
             use_frameworks!
@@ -80,7 +78,6 @@ workflows:
           
       - name: Flutter build ipa
         script: |
-          # TestFlight için asıl imzalama burada gerçekleşir
           flutter build ipa --release \
             --export-method app-store \
             --build-number $(($BUILD_NUMBER + 100))
