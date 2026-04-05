@@ -35,7 +35,9 @@ workflows:
           keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password "$CM_CERTIFICATE_PASSWORD"
         
       - name: Flutter pub get
-        script: flutter pub get
+        script: |
+          flutter clean
+          flutter pub get
 
       - name: Clear Pods Cache
         script: |
@@ -50,13 +52,11 @@ workflows:
           cat <<EOF > Podfile
           platform :ios, '14.0'
           
-          # Codemagic için en güvenli iç yol budur:
           require_relative File.expand_path(File.join('..', 'Flutter', 'podhelper.rb'), __FILE__)
 
           target 'Runner' do
             use_frameworks!
             use_modular_headers!
-          
             flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
           end
           
@@ -74,6 +74,8 @@ workflows:
       - name: Pod Install
         script: |
           cd ios
+          # Versiyon çatışmalarını çözmek için repo güncelleyerek kuruyoruz
+          pod repo update
           pod install --repo-update
           
       - name: Flutter build ipa

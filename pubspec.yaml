@@ -14,30 +14,30 @@ dependencies:
   http: ^1.2.0
 
   # Firebase servisleri - Sürümler güncel ve stabil tutuldu
-  firebase_core: ^2.32.0
-  firebase_auth: ^4.20.0
-  cloud_firestore: ^4.17.5
+  firebase_core: ^4.6.0
+  firebase_auth: ^6.3.0
+  cloud_firestore: ^6.2.0
 
   # Google Sign-In
-  google_sign_in: ^6.3.0
+  google_sign_in: ^7.2.0
 
   # Yerel Veri Saklama ve Kullanıcı Tercihleri
   shared_preferences: ^2.2.3
 
   # --- BİLDİRİM VE ALARM SİSTEMİ İÇİN GÜNCEL PAKETLER ---
-  flutter_local_notifications: ^17.2.4
-  timezone: ^0.9.4
+  flutter_local_notifications: ^21.0.0
+  timezone: ^0.11.0
   flutter_timezone: ^5.0.0
 
   # --- ARKA PLAN GÖREVLERİ VE SKOR TAKİBİ İÇİN EKLENEN PAKET ---
   workmanager: ^0.9.0+3
 
   # --- REKLAM VE ÖDEME SİSTEMLERİ İÇİN EKLENEN PAKETLER ---
-  google_mobile_ads: ^5.1.0
+  google_mobile_ads: ^7.0.0
   in_app_purchase: ^3.2.0
 
   # API Anahtarlarını gizlemek için eklenen paket
-  flutter_dotenv: ^5.1.0
+  flutter_dotenv: ^6.0.0
 
   # İkonlar ve Tasarım Bileşenleri
   cupertino_icons: ^1.0.6
@@ -46,9 +46,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^6.0.0
   # İkon oluşturucu paket eklendi
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
 
 # Uygulama ikonu ayarları
 flutter_launcher_icons:
