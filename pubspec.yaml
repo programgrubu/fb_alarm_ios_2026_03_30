@@ -13,13 +13,13 @@ dependencies:
   # HTTP istekleri için veri çekme servisleri
   http: ^1.2.0
 
-  # Firebase servisleri - Sürümler kodla uyumlu hale getirildi
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.15.3
-  cloud_firestore: ^4.13.6
+  # Firebase servisleri - GoogleUtilities 8.x çakışmasını gidermek için güncellendi
+  firebase_core: ^2.32.0
+  firebase_auth: ^4.16.0
+  cloud_firestore: ^4.17.5
 
-  # Google Sign-In
-  google_sign_in: ^6.1.6
+  # Google Sign-In - Firebase ile uyumlu kararlı sürüm
+  google_sign_in: ^6.2.1
 
   # Yerel Veri Saklama ve Kullanıcı Tercihleri
   shared_preferences: ^2.2.3
