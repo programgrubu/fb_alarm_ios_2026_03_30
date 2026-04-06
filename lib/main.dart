@@ -662,7 +662,7 @@ class _MainShellState extends State<MainShell> {
           if(sche.isAfter(DateTime.now())) {
             String body3d = "$matchInfo ${alarm.date} $willStart $msg3d";
             await NotificationService()
-                .scheduleNotification(id: baseId + 1, title: title, body: body3d, scheduledDate: sche, playSound: isSoundEnabled);
+                .scheduleNotification(baseId + 1, title, body3d, sche, playSound: isSoundEnabled);
           }
         }
         if (alarm.b24) {
@@ -670,13 +670,13 @@ class _MainShellState extends State<MainShell> {
           if(sche.isAfter(DateTime.now())) {
             String body24h = "$matchInfo ${alarm.date} $willStart $msg24h";
             await NotificationService()
-                .scheduleNotification(id: baseId + 2, title: title, body: body24h, scheduledDate: sche, playSound: isSoundEnabled);
+                .scheduleNotification(baseId + 2, title, body24h, sche, playSound: isSoundEnabled);
           }
         }
         if (alarm.ms) {
           if(matchTime.isAfter(DateTime.now())) {
-            await NotificationService().scheduleNotification(id: baseId + 3, title: title, body: "$matchInfo $msgStart",
-                scheduledDate: matchTime, payload: "${alarm.id}|${alarm.info}|${alarm.date}", playSound: isSoundEnabled);
+            await NotificationService().scheduleNotification(baseId + 3, title, "$matchInfo $msgStart",
+                matchTime, payload: "${alarm.id}|${alarm.info}|${alarm.date}", playSound: isSoundEnabled);
           }
         }
 
@@ -691,7 +691,7 @@ class _MainShellState extends State<MainShell> {
             if (scoreMsg.isNotEmpty) {
               String finalMsg = "$msgFinished, $scoreMsg";
               await NotificationService()
-                  .scheduleNotification(id: baseId + 4, title: title, body: finalMsg, scheduledDate: sche, playSound: isSoundEnabled);
+                  .scheduleNotification(baseId + 4, title, finalMsg, sche, playSound: isSoundEnabled);
             }
           }
         }
