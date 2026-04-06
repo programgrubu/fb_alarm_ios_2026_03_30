@@ -8,7 +8,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart'; // YENİ: Apple Giriş Desteği
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -379,7 +379,6 @@ class _MainShellState extends State<MainShell> {
   BannerAd? _bannerAd;
   InterstitialAd? _interstitialAd;
 
-  // GÜNCELLEME: GoogleSignIn nesnesi sınıf düzeyine taşındı
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   String tr(String key) => AppTranslations.getTranslation(key, widget.currentLanguageCode);
@@ -718,7 +717,6 @@ class _MainShellState extends State<MainShell> {
   Future<void> logOff() async {
     await NotificationService().cancelAllNotifications();
     await FirebaseAuth.instance.signOut();
-    // GÜNCELLEME: Global instance üzerinden çıkış yapıldı
     await _googleSignIn.signOut();
     setState(() {
       currentUser = null;
@@ -740,7 +738,6 @@ class _MainShellState extends State<MainShell> {
       await prefs.remove('premium_$uid');
       await NotificationService().cancelAllNotifications();
       await currentUser!.delete();
-      // GÜNCELLEME: Global instance üzerinden çıkış yapıldı
       await _googleSignIn.signOut();
       setState(() {
         currentUser = null;
@@ -833,10 +830,8 @@ class _MainShellState extends State<MainShell> {
     });
   }
 
-  // GOOGLE AUTH MANTIĞI
   Future<void> handleAuth() async {
     try {
-      // GÜNCELLEME: GoogleSignIn kullanımı düzeltildi
       await _googleSignIn.signOut();
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return;
@@ -850,7 +845,6 @@ class _MainShellState extends State<MainShell> {
     }
   }
 
-  // APPLE AUTH MANTIĞI (YENİ)
   Future<void> handleAppleAuth() async {
     try {
       final credential = await SignInWithApple.getAppleIDCredential(
@@ -908,11 +902,11 @@ class _MainShellState extends State<MainShell> {
                           tr: tr,
                           onGoToLogin: () => setState(() => isRegisterPage = false),
                           onRegisterComplete: handleAuth,
-                          onAppleRegister: handleAppleAuth) // Apple eklendi
+                          onAppleRegister: handleAppleAuth)
                           : LoginScreen(
                           tr: tr,
                           onLogin: handleAuth,
-                          onAppleLogin: handleAppleAuth, // Apple eklendi
+                          onAppleLogin: handleAppleAuth,
                           onGoToRegister: () => setState(() => isRegisterPage = true)),
                       CountryTeamScreen(tr: tr, onContinue: goToTenMatches),
                       ResultScreen(
@@ -1617,7 +1611,6 @@ class _ResultScreenState extends State<ResultScreen> with SingleTickerProviderSt
   }
 }
 
-// ResultView için alt bileşen (Temizleme amacıyla ayrıldı)
 class ResultInnerView extends StatelessWidget {
   final bool b3, b24, ms, mr, locked, showFinalContinue;
   final Animation<double> fade;
@@ -1995,7 +1988,7 @@ class NoAlarmScreen extends StatelessWidget {
 
 class LoginScreen extends StatelessWidget {
   final VoidCallback onLogin;
-  final VoidCallback onAppleLogin; // YENİ
+  final VoidCallback onAppleLogin;
   final VoidCallback onGoToRegister;
   final String Function(String) tr;
   const LoginScreen({super.key, required this.onLogin, required this.onAppleLogin, required this.onGoToRegister, required this.tr});
@@ -2020,7 +2013,7 @@ class LoginScreen extends StatelessWidget {
                     Colors.white, onLogin),
                 const SizedBox(height: 16),
                 _authButton(context, bWidth, 'assets/splash/apple_logo.png', "Apple", Colors.white,
-                    Colors.black, onAppleLogin), // APPLE LOGIN
+                    Colors.black, onAppleLogin),
                 const SizedBox(height: 35),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Text(tr('no_account'),
@@ -2074,7 +2067,7 @@ class LoginScreen extends StatelessWidget {
 class RegisterScreen extends StatelessWidget {
   final VoidCallback onGoToLogin;
   final VoidCallback onRegisterComplete;
-  final VoidCallback onAppleRegister; // YENİ
+  final VoidCallback onAppleRegister;
   final String Function(String) tr;
   const RegisterScreen(
       {super.key, required this.onGoToLogin, required this.onRegisterComplete, required this.onAppleRegister, required this.tr});
@@ -2099,7 +2092,7 @@ class RegisterScreen extends StatelessWidget {
                     Colors.white, onRegisterComplete),
                 const SizedBox(height: 16),
                 _authButton(context, bWidth, 'assets/splash/apple_logo.png', "Apple", Colors.white,
-                    Colors.black, onAppleRegister), // APPLE REGISTER
+                    Colors.black, onAppleRegister),
                 const SizedBox(height: 35),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   Text(tr('has_account'),

@@ -10,45 +10,44 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # HTTP istekleri için veri çekme servisleri
+  # HTTP istekleri
   http: ^1.2.0
 
-  # Firebase servisleri - Sürümler uyumluluk için güncellendi
+  # Firebase servisleri
   firebase_core: ^3.10.1
   firebase_auth: ^5.4.1
   cloud_firestore: ^5.6.1
 
   # Google Sign-In
-  google_sign_in: ^7.2.0
+  google_sign_in: ^6.2.1
 
-  # Yerel Veri Saklama ve Kullanıcı Tercihleri
+  # Yerel Veri Saklama
   shared_preferences: ^2.2.3
 
-  # --- BİLDİRİM VE ALARM SİSTEMİ İÇİN GÜNCEL PAKETLER ---
-  flutter_local_notifications: ^21.0.0
-  timezone: ^0.11.0
-  flutter_timezone: ^5.0.0
+  # Bildirim ve Alarm Sistemi
+  flutter_local_notifications: ^17.2.2
+  timezone: ^0.9.4
+  flutter_timezone: ^2.0.1
 
-  # --- ARKA PLAN GÖREVLERİ VE SKOR TAKİBİ İÇİN EKLENEN PAKET ---
-  workmanager: ^0.9.0+3
+  # Arka Plan Görevleri
+  workmanager: ^0.5.2
 
-  # --- REKLAM VE ÖDEME SİSTEMLERİ İÇİN EKLENEN PAKETLER ---
-  google_mobile_ads: ^7.0.0
+  # Reklam ve Ödeme
+  google_mobile_ads: ^5.2.0
   in_app_purchase: ^3.2.0
 
-  # API Anahtarlarını gizlemek için eklenen paket
+  # Çevresel Değişkenler
   flutter_dotenv: ^6.0.0
 
-  # İkonlar ve Tasarım Bileşenleri
+  # İkonlar ve Tasarım
   cupertino_icons: ^1.0.6
-  sign_in_with_apple: ^7.0.1
+  sign_in_with_apple: ^6.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
-  # İkon oluşturucu paket eklendi
-  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.13.1
 
 # Uygulama ikonu ayarları
 flutter_launcher_icons:
@@ -60,7 +59,6 @@ flutter_launcher_icons:
 flutter:
   uses-material-design: true
 
-  # Asset tanımlamaları (Dosya yapısı korunmuştur)
   assets:
     - assets/splash/
     - assets/splash/app_icon.jpg

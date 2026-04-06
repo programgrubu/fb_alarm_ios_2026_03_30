@@ -58,7 +58,7 @@ void callbackDispatcher() {
 }
 
 // ==========================================
-// ALARM MODELİ (DEĞİŞTİRİLMEDİ)
+// ALARM MODELİ
 // ==========================================
 class FootballAlarm {
   final String id;
@@ -129,7 +129,6 @@ class NotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('ball');
 
-    // iOS İÇİN GEREKLİ AYARLAR EKLENDİ
     const DarwinInitializationSettings initializationSettingsDarwin =
     DarwinInitializationSettings(
       requestAlertPermission: true,
@@ -197,7 +196,6 @@ class NotificationService {
           enableVibration: true,
           styleInformation: BigTextStyleInformation(body),
         ),
-        // iOS Detayları Eklendi
         iOS: DarwinNotificationDetails(
           presentAlert: true,
           presentBadge: true,
@@ -242,7 +240,7 @@ class NotificationService {
 }
 
 // ==========================================
-// MAÇ SONUCU VE API SERVİSİ (DEĞİŞTİRİLMEDİ)
+// MAÇ SONUCU VE API SERVİSİ
 // ==========================================
 class MatchResultService {
   static String get _apiKey => dotenv.env['FOOTBALL_API_KEY'] ?? '';
